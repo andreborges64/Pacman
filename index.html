@@ -1245,82 +1245,72 @@ function chooseGhostDirection(
 /* MOVIMENTO DO PLAYER */
 
 function updatePlayer(dt) {
+    const centerCol =
+        Math.round((player.x - TILE / 2) / TILE);
 
-    /* TENTA VIRAR */
+    const centerRow =
+        Math.round((player.y - TILE / 2) / TILE);
 
+    const centerX =
+        centerCol * TILE + TILE / 2;
+
+    const centerY =
+        centerRow * TILE + TILE / 2;
+
+    const distanceX = Math.abs(player.x - centerX);
+    const distanceY = Math.abs(player.y - centerY);
+
+    const turnTolerance = player.speed * dt + 1;
     const next = player.nextDirection;
-    if (
-        next.x !== 0 ||
-        next.y !== 0
-    ) {
-        /* Só permite virar se a próxima célula estiver livre */
 
-        const currentRow = Math.round(
-                (
-                    player.y -
-                    TILE / 2
-                ) /
-                TILE
-            );
-        const currentCol = Math.round(
-                (
-                    player.x -
-                    TILE / 2
-                ) /
-                TILE
-            );
-        const targetRow = currentRow + next.y;
-        const targetCol = currentCol + next.x;
-        if (
-            isOpenCell(
-                targetRow,
-                targetCol
-            )
-        ) {
-            player.direction =
-            {
-                x: next.x,
-                y: next.y
-            };
+    const isAligned =
+        player.direction.x !== 0
+            ? distanceY <= turnTolerance
+            : player.direction.y !== 0
+                ? distanceX <= turnTolerance
+                : distanceX <= turnTolerance &&
+                    distanceY <= turnTolerance;
+
+    const targetRow = centerRow + next.y;
+    const targetCol = centerCol + next.x;
+
+    const canTurn =
+        (next.x !== 0 || next.y !== 0) &&
+        isAligned &&
+        isOpenCell(targetRow, targetCol);
+
+    if (canTurn) {
+        if (next.x !== 0) {
+            player.y = centerY;
+        } else {
+            player.x = centerX;
         }
-    }
 
-    /* MOVIMENTO */
+        player.direction = {
+            x: next.x,
+            y: next.y
+        };
+    }
 
     const dx = player.direction.x * player.speed * dt;
     const dy = player.direction.y * player.speed * dt;
-    if (
-        canMove(
-            player.x + dx,
-            player.y,
-            player.radius
-        )
-    ) {
+
+    if (canMove(player.x + dx, player.y, player.radius)) {
         player.x += dx;
     }
-    if (
-        canMove(
-            player.x,
-            player.y + dy,
-            player.radius
-        )
-    ) {
+
+    if (canMove(player.x, player.y + dy, player.radius)) {
         player.y += dy;
     }
 
-    /* Atualiza célula */
     player.row = Math.round(
-            (
-                player.y - TILE / 2
-            ) /
-            TILE
-        );
+        (player.y - TILE / 2) / TILE
+    );
+
     player.col = Math.round(
-            (
-                player.x - TILE / 2
-            ) /
-            TILE
-        );
+        (player.x - TILE / 2) / TILE
+    );
+
     collectPellets();
 }
 
