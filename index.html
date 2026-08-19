@@ -1,0 +1,2294 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta
+    name="viewport"
+    content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"
+>
+<title>Maze Hunter</title>
+<style>
+/* RESET */
+
+*{
+    box-sizing: border-box;
+    -webkit-tap-highlight-color: transparent;
+}
+
+html,
+body {
+    --footer-height: 35px;
+    margin: 0;
+    padding: 0;
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+    background:
+        radial-gradient(
+            circle at center,
+            #111827,
+            #020617 80%
+        );
+    color: white;
+    font-family:
+        Arial,
+        Helvetica,
+        sans-serif;
+}
+body {
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+
+/* CONTAINER */
+
+#gameContainer {
+    width: 100%;
+    max-width: 900px;
+    height: 100dvh;
+    padding: 6px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    overflow: hidden;
+    text-align: center;
+}
+
+
+/* TITLE */
+
+h1 {
+    margin: 0 0 2px;
+    font-size:
+        clamp(
+            18px,
+            6vw,
+            30px
+        );
+    line-height: 1;
+    letter-spacing: 2px;
+    flex-shrink: 0;
+}
+#subtitle {
+    margin: 0 0 4px;
+    font-size: 9px;
+    line-height: 1.1;
+    color: #9ca3af;
+    flex-shrink: 0;
+}
+
+/* HUD */
+
+#hud {
+    width: 100%;
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 3px;
+    background: #111827;
+    border: 1px solid #374151;
+    border-radius: 7px 7px 0 0;
+    padding: 4px;
+    flex-shrink: 0;
+}
+.hudItem {
+    font-size: 8px;
+    color: #9ca3af;
+    font-weight: bold;
+}
+.hudValue {
+    display: block;
+    margin-top: 1px;
+    font-size: 12px;
+    color: white;
+}
+
+/* GAME */
+
+#gameWrapper {
+    position: relative;
+    width: min(100%, calc((100dvh - 145px - var(--footer-height)) * 25 / 21));
+    aspect-ratio: 25 21;
+    background: black;
+    border:1px solid #374151;
+    overflow: hidden;
+    flex-shrink: 1;
+    min-height: 0;
+}
+#game {
+    display: block;
+    width: 100%;
+    height: 100%;
+    background: black;
+    image-rendering: pixelated;
+    touch-action: none;
+}
+
+/* PAUSE */
+
+#pauseButton {
+    position: absolute;
+    top: 7px;
+    right: 7px;
+    z-index: 20;
+    width: 42px;
+    height: 42px;
+    border:1px solid rgba(255,255,255,.35);
+    border-radius: 50%;
+    background: rgba(15,23,42,.9);
+    color: white;
+    font-size: 17px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    cursor: pointer;
+    touch-action: manipulation;
+}
+
+/* MESSAGE */
+
+#message {
+    width: 100%;
+    min-height: 20px;
+    padding: 2px;
+    color: #d1d5db;
+    font-size: 9px;
+    font-weight: bold;
+    flex-shrink: 0;
+}
+
+/* START */
+
+#startButton {
+    border: none;
+    border-radius: 7px;
+    padding: 7px 20px;
+    background: #facc15;
+    color: #111827;
+    font-weight: bold;
+    font-size:12px;
+    cursor: pointer;
+    touch-action: manipulation;
+    flex-shrink: 0;
+}
+#startButton:active {
+    transform:
+        scale(.97);
+}
+.hidden {
+    display: none !important;
+}
+
+/* FOOTER */
+footer {
+    display: block;
+    unicode-bidi: isolate;
+}
+
+.site-footer {
+    position: static;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    height: var(--footer-height);
+    background: rgba(254, 255, 255, 0);
+    color: #dc2626;
+    text-align: center;
+    padding: 6px 12px;
+    font-size: 11px;
+    font-weight: 900;
+    letter-spacing: .02em;
+    pointer-events: none;
+    flex-shrink: 0;
+}
+
+/* MOBILE CONTROLS */
+
+#mobileControls {
+    width: min(190px, 42vw);
+    margin: 5px auto 2px;
+    display: none;
+    grid-template-columns: repeat(3, 1fr);
+    grid-template-rows: repeat(3, 1fr);
+    gap: 3px;
+    flex-shrink: 0;
+    touch-action: none;
+}
+
+.controlButton {
+    aspect-ratio: 1;
+    border: 1px solid #475569;
+    border-radius: 9px;
+    background: linear-gradient(#1e293b, #0f172a);
+    color: white;
+    font-size: 19px;
+    font-weight: bold;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    user-select: none;
+    -webkit-user-select: none;
+    touch-action: manipulation;
+}
+.controlButton:active {
+    background: #334155;
+    transform: scale(.94);
+}
+#up {
+    grid-column: 2;
+    grid-row: 1;
+}
+#left {
+    grid-column: 1;
+    grid-row: 2;
+}
+#right {
+    grid-column: 3;
+    grid-row: 2;
+}
+#down {
+    grid-column: 2;
+    grid-row: 3;
+}
+
+/* PC CONTROLS */
+
+#pcControls {
+    margin-top: 3px;
+    color: #9ca3af;
+    font-size: 9px;
+    flex-shrink: 0;
+}
+
+.key {
+    display: inline-block;
+    padding: 2px 5px;
+    margin: 0 1px;
+    background: #1f2937;
+    border: 1px solid #4b5563;
+    border-radius: 4px;
+    color: white;
+}
+
+@media (max-width: 768px) {
+    #mobileControls {
+        display: grid;
+    }
+
+    #pcControls {
+        display: none;
+    }
+}
+
+/* DESKTOP */
+
+@media (max-height: 650px) {
+    #gameContainer {
+        padding: 3px;
+    }
+    h1 {
+        font-size: 17px;
+    }
+    #subtitle {
+        display: none;
+    }
+    #hud {
+        padding: 3px;
+    }
+    .hudItem {
+        font-size: 7px;
+    }
+    .hudValue {
+        font-size: 10px;
+    }
+    #message {
+        min-height: 16px;
+        font-size: 8px;
+    }
+    #mobileControls {
+        width: 155px;
+        margin-top: 3px;
+    }
+    .controlButton {
+        font-size: 16px;
+    }
+    #startButton {
+        padding: 5px 15px;
+        font-size: 10px;
+    }
+}
+</style>
+</head>
+<body>
+<div id="gameContainer">
+    <h1>MAZE HUNTER</h1>
+    <div id="subtitle">
+        Entre no labirinto. Sobreviva aos caçadores.
+    </div>
+    <div id="hud">
+        <div class="hudItem">
+            SCORE
+            <span
+                class="hudValue"
+                id="score">
+                0
+            </span>
+        </div>
+        <div class="hudItem">
+            RECORDE
+            <span
+                class="hudValue"
+                id="highScore">
+                0
+            </span>
+        </div>
+        <div class="hudItem">
+            FASE
+            <span
+                class="hudValue"
+                id="level">
+                1
+            </span>
+        </div>
+
+        <div class="hudItem">
+            VIDAS
+            <span
+                class="hudValue"
+                id="lives">
+                ❤️❤️❤️
+            </span>
+        </div>
+    </div>
+    <div id="gameWrapper">
+        <canvas id="game"></canvas>
+        <button
+            id="pauseButton"
+            aria-label="Pausar jogo">
+            ⏸
+        </button>
+    </div>
+    <div id="message">
+        Pressione iniciar para jogar.
+    </div>
+    <button id="startButton">
+        INICIAR JOGO
+    </button>
+    <div id="mobileControls">
+        <button
+            class="controlButton"
+            id="up">
+            ▲
+        </button>
+        <button
+            class="controlButton"
+            id="left">
+            ◀
+        </button>
+        <button
+            class="controlButton"
+            id="right">
+            ▶
+        </button>
+        <button
+            class="controlButton"
+            id="down">
+            ▼
+        </button>
+    </div>
+    <div id="pcControls">
+        <span class="key">W</span>
+        <span class="key">↑</span>
+        Cima
+        &nbsp;
+        <span class="key">A</span>
+        <span class="key">←</span>
+        Esquerda
+        &nbsp;
+        <span class="key">S</span>
+        <span class="key">↓</span>
+        Baixo
+        &nbsp;
+        <span class="key">D</span>
+        <span class="key">→</span>
+        Direita
+        &nbsp;
+        <span class="key">P</span>
+        Pausar
+    </div>
+    <footer class="site-footer">
+        © 2026 André Luiz Silva Dias Borges. Todos os direitos reservados.
+    </footer>
+</div>
+
+<script>
+const canvas = document.getElementById("game");
+const ctx = canvas.getContext("2d");
+const scoreElement = document.getElementById("score");
+const highScoreElement = document.getElementById("highScore");
+const levelElement = document.getElementById("level");
+const livesElement = document.getElementById("lives");
+const messageElement = document.getElementById("message");
+const startButton = document.getElementById("startButton");
+const pauseButton = document.getElementById("pauseButton");
+
+/* MAPA */
+
+const TILE = 30;
+const ROWS = 21;
+const COLS = 25;
+canvas.width = COLS * TILE;
+canvas.height = ROWS * TILE;
+
+/* RECORDE */
+
+const HIGH_SCORE_KEY = "mazeHunterHighScore";
+let highScore =
+    Number(
+        localStorage.getItem(
+            HIGH_SCORE_KEY
+        )
+    ) || 0;
+
+/* ESTADO */
+
+let maze = [];
+let pellets = [];
+let ghosts = [];
+let player = null;
+
+/* JOGO */
+
+let score = 0;
+let level = 1;
+let lives = 3;
+let running = false;
+let paused = false;
+let gameOver = false;
+
+/* FRUTA */
+
+const POWER_DURATION = 8;
+let powerTimer = 0;
+
+/* PROTEÇÃO */
+
+let invulnerabilityTimer = 0;
+
+/* TEMPO */
+
+let lastTime = 0;
+
+/* DIREÇÕES */
+
+const DIRECTIONS = [
+    { x: 1, y: 0 },
+    { x: -1, y: 0 },
+    { x: 0, y: 1 },
+    { x: 0, y: -1 }
+];
+
+/* UTILIDADE */
+
+function shuffle(array) {
+    const result = [...array];
+    for (
+        let i =
+            result.length - 1;
+        i > 0;
+        i--
+    ) {
+        const j =
+            Math.floor(
+                Math.random() *
+                (i + 1)
+            );
+        [
+            result[i],
+            result[j]
+        ] =
+        [
+            result[j],
+            result[i]
+        ];
+    }
+    return result;
+}
+
+/* LABIRINTO */
+
+function generateMaze() {
+    maze =
+        Array.from(
+            {
+                length: ROWS
+            },
+            () =>
+                Array(COLS).fill(1)
+        );
+    function carve(
+        row,
+        col
+    ) {
+        maze[row][col] = 0;
+        const directions =
+            shuffle([
+                [0, 2],
+                [0, -2],
+                [2, 0],
+                [-2, 0]
+            ]);
+        for (
+            const [
+                dr,
+                dc
+            ]
+            of directions
+        ) {
+            const nr =
+                row + dr;
+            const nc =
+                col + dc;
+            if (
+                nr > 0 &&
+                nr < ROWS - 1 &&
+                nc > 0 &&
+                nc < COLS - 1 &&
+                maze[nr][nc] === 1
+            ) {
+                maze[
+                    row + dr / 2
+                ][
+                    col + dc / 2
+                ] = 0;
+                carve(
+                    nr,
+                    nc
+                );
+            }
+        }
+    }
+    carve(1, 1);
+
+    /*Alguns caminhos extras*/
+
+    for (
+        let i = 0;
+        i < 35;
+        i++
+    ) {
+        const row =
+            1 +
+            Math.floor(
+                Math.random() *
+                (ROWS - 2)
+            );
+        const col =
+            1 +
+            Math.floor(
+                Math.random() *
+                (COLS - 2)
+            );
+        if (
+            maze[row][col] === 0
+        ) {
+            continue;
+        }
+        const horizontal =
+            maze[row][col - 1] === 0 &&
+            maze[row][col + 1] === 0;
+        const vertical =
+            maze[row - 1][col] === 0 &&
+            maze[row + 1][col] === 0;
+        if (
+            horizontal ||
+            vertical
+        ) {
+            maze[row][col] = 0;
+        }
+    }
+
+    /* CENTRO */
+
+    const centerRow =
+        Math.floor(
+            ROWS / 2
+        );
+    const centerCol =
+        Math.floor(
+            COLS / 2
+        );
+    for (
+        let row =
+            centerRow - 1;
+        row <=
+            centerRow + 1;
+        row++
+    ) {
+        for (
+            let col =
+                centerCol - 2;
+            col <=
+                centerCol + 2;
+            col++
+        ) {
+            if (
+                row > 0 &&
+                row < ROWS - 1 &&
+                col > 0 &&
+                col < COLS - 1
+            ) {
+                maze[row][col] = 0;
+            }
+        }
+    }
+}
+
+/* PLAYER */
+
+function createPlayer() {
+    const row =
+        Math.floor(
+            ROWS / 2
+        );
+    const col =
+        Math.floor(
+            COLS / 2
+        );
+    player = {
+        row,
+        col,
+        x:
+            col * TILE +
+            TILE / 2,
+        y:
+            row * TILE +
+            TILE / 2,
+        radius:
+            TILE * .32,
+        speed:
+            125,
+        direction:
+        {
+            x: 0,
+            y: 0
+        },
+        nextDirection:
+        {
+            x: 0,
+            y: 0
+        }
+    };
+}
+
+/* PONTOS */
+
+function createPellets() {
+    pellets = [];
+    const centerRow =
+        Math.floor(
+            ROWS / 2
+        );
+    const centerCol =
+        Math.floor(
+            COLS / 2
+        );
+    for (
+        let row = 1;
+        row < ROWS - 1;
+        row++
+    ) {
+        for (
+            let col = 1;
+            col < COLS - 1;
+            col++
+        ) {
+            if (
+                maze[row][col] !== 0
+            ) {
+                continue;
+            }
+            const distance =
+                Math.abs(
+                    row -
+                    centerRow
+                )
+                +
+                Math.abs(
+                    col -
+                    centerCol
+                );
+
+            /* Área inicial livre */
+
+            if (
+                distance <= 3
+            ) {
+
+                continue;
+            }
+            pellets.push({
+                row,
+                col,
+                collected: false,
+                power: false
+            });
+        }
+    }
+
+    /* Frutas */
+
+    const candidates = shuffle(pellets);
+    for (
+        let i = 0;
+        i <
+        Math.min(
+            4,
+            candidates.length
+        );
+        i++
+    ) {
+        candidates[i].power = true;
+    }
+}
+
+/* PAREDE */
+
+function isWall(
+    row,
+    col
+) {
+    if (
+        row < 0 ||
+        row >= ROWS ||
+        col < 0 ||
+        col >= COLS
+    ) {
+        return true;
+    }
+    return maze[row][col] === 1;
+}
+
+/* CÉLULA LIVRE */
+
+function isOpenCell(
+    row,
+    col
+) {
+    return !isWall(
+        row,
+        col
+    );
+}
+
+/* POSIÇÃO CENTRAL DA CÉLULA */
+
+function cellCenter(
+    row,
+    col
+) {
+    return {
+        x:
+            col * TILE +
+            TILE / 2,
+        y:
+            row * TILE +
+            TILE / 2
+    };
+}
+
+/* DISTÂNCIA */
+
+function manhattan(
+    row1,
+    col1,
+    row2,
+    col2
+) {
+    return (
+        Math.abs(
+            row1 - row2
+        )
+        +
+        Math.abs(
+            col1 - col2
+        )
+    );
+}
+
+/* SPAWN FANTASMA */
+
+function findGhostSpawn(
+    occupied
+) {
+    const candidates = [];
+    for (
+        let row = 1;
+        row < ROWS - 1;
+        row++
+    ) {
+        for (
+            let col = 1;
+            col < COLS - 1;
+            col++
+        ) {
+            if (
+                !isOpenCell(
+                    row,
+                    col
+                )
+            ) {
+                continue;
+            }
+
+            /* Distância mínima do Pac-Man */
+
+            const distance = manhattan(
+                    row,
+                    col,
+                    player.row,
+                    player.col
+                );
+            if (
+                distance < 8
+            ) {
+                continue;
+            }
+
+            /* Não sobrepor outros fantasmas */
+            if (
+                occupied.some(
+                    ghost =>
+                        ghost.row === row &&
+                        ghost.col === col
+                )
+            ) {
+                continue;
+            }
+
+            /* Precisa ter caminho de saída */
+
+            const exits = DIRECTIONS.filter(
+                    direction =>
+                        isOpenCell(
+                            row +
+                            direction.y,
+                            col +
+                            direction.x
+                        )
+                );
+            if (
+                exits.length === 0
+            ) {
+                continue;
+            }
+            candidates.push({
+                row,
+                col,
+                distance,
+                exits
+            });
+        }
+    }
+    if (
+        candidates.length === 0
+    ) {
+        /*Fallback*/
+        return {
+            row: 1,
+            col: 1
+        };
+    }
+
+    /* Ordena pelos mais distantes */
+    candidates.sort(
+        (
+            a,
+            b
+        ) =>
+            b.distance -
+            a.distance
+    );
+
+    /* Escolhe entre os 20% mais distantes */
+
+    const poolSize = Math.max(
+            1,
+            Math.floor(
+                candidates.length *
+                .20
+            )
+        );
+    return candidates[
+        Math.floor(
+            Math.random() *
+            poolSize
+        )
+    ];
+}
+
+/* CRIA FANTASMAS */
+
+function createGhosts() {
+    ghosts = [];
+    const colors = [
+        "#ef4444",
+        "#22d3ee",
+        "#f472b6",
+        "#a78bfa"
+    ];
+
+    /*Pequena diferença de velocidade*/
+
+    const speedFactors = [
+        1.00,
+        1.035,
+        1.070,
+        1.105
+    ];
+
+    const occupied = [];
+    for (
+        let i = 0;
+        i < 4;
+        i++
+    ) {
+        const spawn =
+            findGhostSpawn(
+                occupied
+            );
+        occupied.push(
+            spawn
+        );
+        const center =
+            cellCenter(
+                spawn.row,
+                spawn.col
+            );
+
+        /* DIREÇÃO INICIAL */
+
+        const possible =
+            DIRECTIONS.filter(
+                direction =>
+                    isOpenCell(
+                        spawn.row +
+                        direction.y,
+                        spawn.col +
+                        direction.x
+                    )
+            );
+        let initialDirection;
+        if (
+            possible.length > 0
+        ) {
+            initialDirection =
+                possible[
+                    Math.floor(
+                        Math.random() *
+                        possible.length
+                    )
+                ];
+        } else {
+            initialDirection =
+            {
+                x: 1,
+                y: 0
+            };
+        }
+        ghosts.push({
+
+            /* POSIÇÃO */
+
+            row:spawn.row,
+            col:spawn.col,
+            x:center.x,
+            y:center.y,
+
+
+            /* MOVIMENTO */
+
+            direction:
+            {
+                x:initialDirection.x,
+                y:initialDirection.y
+            },
+            speed:
+                76 *
+                speedFactors[i] *
+                (
+                    1 +
+                    (level - 1) *
+                    .035
+                ),
+
+            /* VISUAL */
+
+            color:colors[i],
+            radius:TILE * .34,
+
+            /* ESTADOS */
+
+            frightened:false,
+            eaten:false,
+            moving:false,
+
+            /* COMPORTAMENTO */
+
+            aggression: .50 + i * .10
+        });
+    }
+}
+
+/* INICIAR MOVIMENTO DOS FANTASMAS */
+
+function startGhostMovement() {
+    /*
+    Esta função é chamada explicitamente
+    no início da fase.
+    Depois disso todos os fantasmas
+    possuem movimento ativo.
+    */
+    for (
+        const ghost
+        of ghosts
+    ) {
+        ghost.moving = true;
+
+        /*
+        Garante que a direção inicial
+        seja válida.
+        */
+
+        chooseGhostDirection(
+            ghost,
+            true
+        );
+    }
+}
+
+
+/* PARAR FANTASMAS */
+
+function stopGhostMovement() {
+    for (
+        const ghost
+        of ghosts
+    ) {
+        ghost.moving = false;
+    }
+}
+
+/* DIREÇÃO DO FANTASMA */
+
+function chooseGhostDirection(
+    ghost,initial = false
+) {
+    const possible = [];
+    for (
+        const direction
+        of DIRECTIONS
+    ) {
+        /* Em um cruzamento, evita voltar pelo caminho imediatamente anterior */
+        if (
+            !initial &&
+            direction.x ===
+                -ghost.direction.x &&
+            direction.y ===
+                -ghost.direction.y
+        ) {
+            continue;
+        }
+        const targetRow =
+            ghost.row +
+            direction.y;
+        const targetCol =
+            ghost.col +
+            direction.x;
+        if (
+            isOpenCell(
+                targetRow,
+                targetCol
+            )
+        ) {
+            possible.push(
+                direction
+            );
+        }
+    }
+
+    /* BECO */
+
+    if (
+        possible.length === 0
+    ) {
+        const reverse = {
+            x: -ghost.direction.x,
+            y: -ghost.direction.y
+        };
+        const reverseRow = ghost.row + reverse.y;
+        const reverseCol = ghost.col + reverse.x;
+        if (
+            isOpenCell(
+                reverseRow,
+                reverseCol
+            )
+        ) {
+            ghost.direction = reverse;
+        }
+        return;
+    }
+
+    /* FRIGHTENED */
+
+    if (
+        ghost.frightened
+    ) {
+        possible.sort(
+            (
+                a,
+                b
+            ) => {
+                const distanceA = manhattan(
+                        ghost.row +
+                        a.y,
+                        ghost.col +
+                        a.x,
+                        player.row,
+                        player.col
+                    );
+                const distanceB = manhattan(
+                        ghost.row + b.y,
+                        ghost.col + b.x,
+                        player.row,
+                        player.col
+                    );
+                return (
+                    distanceB - distanceA
+                );
+            }
+        );
+
+        /* Na maior parte das vezes, escolhe fugir */
+        if (
+            Math.random() < .8
+        ) {
+            ghost.direction = possible[0];
+        } else {
+            ghost.direction = possible[
+                    Math.floor(
+                        Math.random() *
+                        possible.length
+                    )
+                ];
+        }
+        return;
+    }
+
+    /* NORMAL */
+    if (
+        Math.random() < ghost.aggression
+    ) {
+
+        /* Calcula distância Manhattan até o jogador */
+
+        possible.sort(
+            (
+                a,
+                b
+            ) => {
+                const distanceA =
+                    manhattan(
+                        ghost.row + a.y,
+                        ghost.col + a.x,
+                        player.row,
+                        player.col
+                    );
+                const distanceB = manhattan(
+                        ghost.row + b.y,
+                        ghost.col + b.x,
+                        player.row,
+                        player.col
+                    );
+                return (
+                    distanceA - distanceB
+                );
+            }
+        );
+
+        /* Pequena variação entre fantasmas */
+
+        if (
+            possible.length > 1 &&
+            Math.random() <
+            .18
+        ) {
+            ghost.direction = possible[1];
+        } else {
+            ghost.direction = possible[0];
+        }
+    } else {
+        ghost.direction = possible[
+                Math.floor(
+                    Math.random() *
+                    possible.length
+                )
+            ];
+    }
+}
+
+/* MOVIMENTO DO PLAYER */
+
+function updatePlayer(dt) {
+
+    /* TENTA VIRAR */
+
+    const next = player.nextDirection;
+    if (
+        next.x !== 0 ||
+        next.y !== 0
+    ) {
+        /* Só permite virar se a próxima célula estiver livre */
+
+        const currentRow = Math.round(
+                (
+                    player.y -
+                    TILE / 2
+                ) /
+                TILE
+            );
+        const currentCol = Math.round(
+                (
+                    player.x -
+                    TILE / 2
+                ) /
+                TILE
+            );
+        const targetRow = currentRow + next.y;
+        const targetCol = currentCol + next.x;
+        if (
+            isOpenCell(
+                targetRow,
+                targetCol
+            )
+        ) {
+            player.direction =
+            {
+                x: next.x,
+                y: next.y
+            };
+        }
+    }
+
+    /* MOVIMENTO */
+
+    const dx = player.direction.x * player.speed * dt;
+    const dy = player.direction.y * player.speed * dt;
+    if (
+        canMove(
+            player.x + dx,
+            player.y,
+            player.radius
+        )
+    ) {
+        player.x += dx;
+    }
+    if (
+        canMove(
+            player.x,
+            player.y + dy,
+            player.radius
+        )
+    ) {
+        player.y += dy;
+    }
+
+    /* Atualiza célula */
+    player.row = Math.round(
+            (
+                player.y - TILE / 2
+            ) /
+            TILE
+        );
+    player.col = Math.round(
+            (
+                player.x - TILE / 2
+            ) /
+            TILE
+        );
+    collectPellets();
+}
+
+
+/* COLISÃO COM PAREDES */
+
+function canMove(
+    x,
+    y,
+    radius
+) {
+    const left =
+        Math.floor(
+            (x - radius) /
+            TILE
+        );
+    const right =
+        Math.floor(
+            (x + radius) /
+            TILE
+        );
+    const top =
+        Math.floor(
+            (y - radius) /
+            TILE
+        );
+    const bottom =
+        Math.floor(
+            (y + radius) /
+            TILE
+        );
+    for (
+        let row = top;
+        row <= bottom;
+        row++
+    ) {
+        for (
+            let col = left;
+            col <= right;
+            col++
+        ) {
+            if (
+                isWall(
+                    row,
+                    col
+                )
+            ) {
+                return false;
+            }
+        }
+    }
+    return true;
+}
+
+/* MOVIMENTO DOS FANTASMAS */
+
+function updateGhosts(dt) {
+    for (
+        const ghost
+        of ghosts
+    ) {
+        if (
+            !ghost.moving
+        ) {
+            continue;
+        }
+
+        /* FANTASMA COMIDO */
+
+        if (
+            ghost.eaten
+        ) {
+            updateEatenGhost(
+                ghost,
+                dt
+            );
+            continue;
+        }
+
+        /* CENTRO DA CÉLULA ATUAL */
+
+        const currentCenter = cellCenter(
+                ghost.row,
+                ghost.col
+            );
+
+        /* PRÓXIMA CÉLULA */
+
+        const nextRow = ghost.row + ghost.direction.y;
+        const nextCol = ghost.col + ghost.direction.x;
+
+        /* Se a direção atual apontar para uma parede, escolhe outra */
+        if (
+            !isOpenCell(
+                nextRow,
+                nextCol
+            )
+        ) {
+            /* Primeiro garante que o fantasma esteja exatamente no centro */
+            ghost.x = currentCenter.x;
+            ghost.y = currentCenter.y;
+            chooseGhostDirection(
+                ghost
+            );
+
+            /* Recalcula */
+            continue;
+        }
+
+        /* CENTRO DA PRÓXIMA CÉLULA */
+
+        const target = cellCenter(
+                nextRow, nextCol
+            );
+
+        /* VETOR ATÉ O ALVO */
+
+        const dx = target.x - ghost.x;
+        const dy = target.y - ghost.y;
+        const distance = Math.hypot(dx,dy);
+
+        /* DISTÂNCIA QUE SERÁ PERCORRIDA */
+
+        const movement = ghost.speed * dt;
+
+        /* CHEGOU NA PRÓXIMA CÉLULA */
+
+        if (
+            distance <= movement
+        ) {
+
+            /*
+            Coloca exatamente no centro.
+            */
+
+            ghost.x =
+                target.x;
+
+            ghost.y =
+                target.y;
+
+
+            /* Agora sim a célula mudou */
+            ghost.row = nextRow;
+            ghost.col = nextCol;
+
+            /* ESCOLHE O PRÓXIMO CAMINHO */
+
+            chooseGhostDirection(
+                ghost
+            );
+        } else {
+
+            /* CONTINUA ANDANDO */
+
+            ghost.x +=
+                (
+                    dx /
+                    distance
+                ) *
+                movement;
+            ghost.y +=
+                (
+                    dy /
+                    distance
+                ) *
+                movement;
+        }
+    }
+}
+
+/* FANTASMA COMIDO */
+
+function updateEatenGhost(ghost,dt) {
+
+    /* Centro do mapa */
+    const centerRow = Math.floor(ROWS / 2);
+    const centerCol = Math.floor(COLS / 2);
+    const target = cellCenter(
+            centerRow,
+            centerCol
+        );
+    const dx = target.x - ghost.x;
+    const dy = target.y - ghost.y;
+    const distance = Math.hypot(dx,dy);
+    const speed = ghost.speed * 2.5;
+    const movement = speed * dt;
+
+    /* CHEGOU */
+
+    if (
+        distance <= movement
+    ) {
+        ghost.x = target.x;
+        ghost.y = target.y;
+        ghost.row = centerRow;
+        ghost.col = centerCol;
+        ghost.eaten = false;
+        ghost.frightened = powerTimer > 0;
+
+        /*
+        Volta imediatamente ao
+        sistema normal de movimento.
+        */
+
+        ghost.moving = true;
+        chooseGhostDirection(ghost);
+        return;
+    }
+
+    /* VOLTANDO AO CENTRO*/
+
+    ghost.x +=
+        (
+            dx /
+            distance
+        ) *
+        movement;
+    ghost.y +=
+        (
+            dy /
+            distance
+        ) *
+        movement;
+}
+
+/* FRUTA */
+
+function activatePowerFruit() {
+    powerTimer = POWER_DURATION;
+    for (
+        const ghost
+        of ghosts
+    ) {
+        if (
+            !ghost.eaten
+        ) {
+            ghost.frightened = true;
+        }
+    }
+    messageElement.textContent = "🍒 PODER! " + POWER_DURATION + " segundos!";
+    updateHUD();
+}
+
+/* COLETAR PONTOS */
+
+function collectPellets() {
+    for (
+        const pellet
+        of pellets
+    ) {
+        if (
+            pellet.collected
+        ) {
+            continue;
+        }
+        if (
+            pellet.row ===
+                player.row &&
+            pellet.col ===
+                player.col
+        ) {
+            pellet.collected = true;
+            if (
+                pellet.power
+            ) {
+                score += 50;
+                activatePowerFruit();
+            } else {
+                score += 10;
+            }
+            updateHUD();
+        }
+    }
+
+    /* FIM DA FASE */
+
+    if (
+        pellets.every(
+            pellet =>
+                pellet.collected
+        )
+    ) {
+        nextLevel();
+    }
+}
+
+/* COLISÕES */
+
+function checkGhostCollisions() {
+    if (
+        invulnerabilityTimer > 0
+    ) {
+        return;
+    }
+    for (
+        const ghost
+        of ghosts
+    ) {
+        if (
+            ghost.eaten
+        ) {
+            continue;
+        }
+        const distance = Math.hypot(
+                player.x -
+                ghost.x,
+                player.y -
+                ghost.y
+            );
+        if (
+            distance <
+            player.radius +
+            ghost.radius
+        ) {
+
+            /* PODER ATIVO */
+
+            if (
+                powerTimer > 0 &&
+                ghost.frightened
+            ) {
+                ghost.eaten = true;
+                score += 200;
+                messageElement.textContent = "👻 +200";
+                updateHUD();
+            } else {
+                loseLife();
+                return;
+            }
+        }
+    }
+}
+
+/* PERDER VIDA */
+
+function loseLife() {
+    lives--;
+    updateHUD();
+    if (
+        lives <= 0
+    ) {
+        endGame();
+        return;
+    }
+
+    /*Para os fantasmas atuais.*/
+    stopGhostMovement();
+
+    /*Recria jogador e fantasmas.*/
+    createPlayer();
+    createGhosts();
+
+    /*Pequena invulnerabilidade.*/
+    invulnerabilityTimer = 2;
+    startGhostMovement();
+    messageElement.textContent = "💥 Você perdeu uma vida!";
+}
+
+/* PRÓXIMA FASE*/
+
+function nextLevel() {
+    const finishedLevel = level;
+
+    /*Para os fantasmas antigos.*/
+    stopGhostMovement();
+
+    /*Nova fase.*/
+    level++;
+
+    /*VIDA A CADA 5 FASES */
+    if (
+        finishedLevel % 5 === 0
+    ) {
+        lives++;
+        messageElement.textContent = "🏆 FASE " + finishedLevel + "! +1 VIDA!";
+    } else {
+        messageElement.textContent = "🏆 FASE " + finishedLevel + " CONCLUÍDA!";
+    }
+
+    /* NOVO LABIRINTO */
+
+    generateMaze();
+    createPellets();
+    createPlayer();
+    createGhosts();
+
+    /*Nova fruta.*/
+    powerTimer = 0;
+
+    /*Pequena proteção.*/
+    invulnerabilityTimer = 1.5;
+
+    /* NOVO MOVIMENTO */
+    startGhostMovement();
+    updateHUD();
+}
+
+/* GAME OVER */
+
+function endGame() {
+    running = false;
+    paused = false;
+    gameOver = true;
+    stopGhostMovement();
+    saveHighScore();
+    messageElement.textContent = "GAME OVER — " + "Pontuação: " + score;
+    startButton.textContent = "JOGAR NOVAMENTE";
+    startButton.classList.remove("hidden");
+}
+
+/* RECORDE */
+
+function saveHighScore() {
+    if (
+        score > highScore
+    ) {
+        highScore = score;
+        localStorage.setItem(
+            HIGH_SCORE_KEY,
+            String(highScore)
+        );
+    }
+    highScoreElement.textContent = highScore;
+}
+
+/* HUD */
+
+function updateHUD() {
+    if (
+        score > highScore
+    ) {
+        saveHighScore();
+    }
+    scoreElement.textContent = score;
+    highScoreElement.textContent = highScore;
+    levelElement.textContent = level;
+    livesElement.textContent = "❤️".repeat(Math.max(0,lives));
+}
+
+/* DESENHA LABIRINTO */
+
+function drawMaze() {
+    for (
+        let row = 0;
+        row < ROWS;
+        row++
+    ) {
+        for (
+            let col = 0;
+            col < COLS;
+            col++
+        ) {
+            const x = col * TILE;
+            const y = row * TILE;
+            if (
+                maze[row][col] === 1
+            ) {
+                ctx.fillStyle = "#172554";
+                ctx.fillRect(x,y,TILE,TILE);
+                ctx.strokeStyle = "#2563eb";
+                ctx.lineWidth = 1;
+                ctx.strokeRect(x + 2,y + 2,TILE - 4,TILE - 4);
+            } else {
+                ctx.fillStyle = "#020617";
+                ctx.fillRect(x,y,TILE,TILE);
+            }
+        }
+    }
+}
+
+
+/* DESENHA PONTOS */
+
+function drawPellets() {
+    for (
+        const pellet
+        of pellets
+    ) {
+        if (
+            pellet.collected
+        ) {
+            continue;
+        }
+        const x = pellet.col * TILE + TILE / 2;
+        const y = pellet.row * TILE + TILE / 2;
+        ctx.beginPath();
+        if (
+            pellet.power
+        ) {
+            const pulse = 7 + Math.sin(performance.now() / 130) * 2;
+            ctx.fillStyle = "#60a5fa";
+            ctx.arc(x,y,pulse,0,Math.PI * 2);
+        } else {
+            ctx.fillStyle = "#fde68a";
+            ctx.arc(x,y,3,0,Math.PI * 2);
+        }
+        ctx.fill();
+    }
+}
+
+/* DESENHA PLAYER */
+
+function drawPlayer() {
+    if (
+        !player
+    ) {
+        return;
+    }
+
+    /*Pisca durante invulnerabilidade.*/
+    if (
+        invulnerabilityTimer > 0 &&
+        Math.floor(
+            performance.now() /
+            120
+        ) % 2 === 0
+    ) {
+        return;
+    }
+    let angle = 0;
+    if (
+        player.direction.x !== 0 ||
+        player.direction.y !== 0
+    ) {
+        angle =
+            Math.atan2(
+                player.direction.y,
+                player.direction.x
+            );
+    }
+    const mouth = .15 +
+        Math.abs(
+            Math.sin(
+                performance.now() /
+                90
+            )
+        ) *
+        .28;
+    ctx.fillStyle = "#facc15";
+    ctx.beginPath();
+    ctx.moveTo(
+        player.x,
+        player.y
+    );
+    ctx.arc(
+        player.x,
+        player.y,
+        player.radius,
+        angle + mouth,
+        angle -
+        mouth +
+        Math.PI * 2
+    );
+    ctx.closePath();
+    ctx.fill();
+}
+
+/* DESENHA FANTASMAS */
+
+function drawGhosts() {
+    for (
+        const ghost
+        of ghosts
+    ) {
+        let color = ghost.color;
+
+        /*Frightened*/
+        if (
+            ghost.frightened
+        ) {
+            if (
+                powerTimer <= 2 &&
+                Math.floor(
+                    performance.now() /
+                    150
+                ) % 2 === 0
+            ) {
+                color = "#ffffff";
+            } else {
+                color = "#2563eb";
+            }
+        }
+
+        /* CORPO */
+
+        ctx.fillStyle = color;
+        ctx.beginPath();
+        ctx.arc(
+            ghost.x,
+            ghost.y - 2,
+            ghost.radius,
+            Math.PI,
+            0
+        );
+        ctx.lineTo(
+            ghost.x +
+            ghost.radius,
+            ghost.y +
+            ghost.radius
+        );
+        const segments = 3;
+        const width = ghost.radius * 2 / segments;
+        for (
+            let i = segments;
+            i > 0;
+            i--
+        ) {
+            const px = ghost.x - ghost.radius + width * i - width / 2;
+            const py = ghost.y + ghost.radius;
+            ctx.quadraticCurveTo(
+                px,
+                py + 5,
+                px -
+                width / 2,
+                py
+            );
+        }
+        ctx.closePath();
+        ctx.fill();
+
+        /* OLHOS */
+        if (
+            !ghost.eaten
+        ) {
+            ctx.fillStyle = "white";
+            ctx.beginPath();
+            ctx.arc(ghost.x - 5,ghost.y - 4,4,0, Math.PI * 2);
+            ctx.arc(ghost.x + 5,ghost.y - 4,4,0, Math.PI * 2);
+            ctx.fill();
+            ctx.fillStyle = "#111827";
+            ctx.beginPath();
+            ctx.arc(ghost.x - 4,ghost.y - 4,2,0, Math.PI * 2);
+            ctx.arc(ghost.x + 6,ghost.y - 4,2,0, Math.PI * 2);
+            ctx.fill();
+        }
+    }
+}
+
+/* PAUSA */
+
+function drawPauseScreen() {
+    ctx.fillStyle = "rgba(0,0,0,.72)";
+    ctx.fillRect(0,0,canvas.width,canvas.height);
+    ctx.textAlign = "center";
+    ctx.textBaseline = "middle";
+    ctx.fillStyle = "white";
+    ctx.font = "bold 42px Arial";
+    ctx.fillText(
+        "PAUSADO",
+        canvas.width / 2,
+        canvas.height / 2 - 15
+    );
+    ctx.font = "18px Arial";
+    ctx.fillStyle = "#d1d5db";
+    ctx.fillText(
+        "Pressione P ou ⏸ para continuar",
+        canvas.width / 2,
+        canvas.height / 2 + 30
+    );
+    ctx.textAlign = "start";
+    ctx.textBaseline = "alphabetic";
+}
+
+/* PAUSAR / DESPAUSAR */
+
+function togglePause() {
+    if (
+        !running
+    ) {
+        return;
+    }
+    paused = !paused;
+    if (
+        paused
+    ) {
+        messageElement.textContent = "⏸ JOGO PAUSADO";
+        pauseButton.textContent = "▶";
+    } else {
+        messageElement.textContent = "▶ CONTINUANDO";
+        pauseButton.textContent = "⏸";
+
+        /*Evita salto de tempo*/
+        lastTime = performance.now();
+    }
+}
+
+pauseButton.addEventListener(
+    "click",
+    togglePause
+);
+
+/* TECLADO */
+
+document.addEventListener(
+    "keydown",
+    event => {
+        const key =
+            event.key.toLowerCase();
+        if (
+            key === "p"
+        ) {
+            togglePause();
+            return;
+        }
+        const controls = {
+            w: {
+                x: 0,
+                y: -1
+            },
+            arrowup: {
+                x: 0,
+                y: -1
+            },
+            s: {
+                x: 0,
+                y: 1
+            },
+            arrowdown: {
+                x: 0,
+                y: 1
+            },
+            a: {
+                x: -1,
+                y: 0
+            },
+            arrowleft: {
+                x: -1,
+                y: 0
+            },
+            d: {
+                x: 1,
+                y: 0
+            },
+            arrowright: {
+                x: 1,
+                y: 0
+            }
+        };
+        if (
+            controls[key] &&
+            running &&
+            !paused
+        ) {
+            event.preventDefault();
+            player.nextDirection = controls[key];
+        }
+        if (
+            key === "enter" &&
+            !running
+        ) {
+            startGame();
+        }
+    }
+);
+
+/* CONTROLES MOBILE */
+
+function setDirection(
+    x,
+    y
+) {
+    if (
+        !running ||
+        paused ||
+        !player
+    ) {
+        return;
+    }
+    player.nextDirection = {
+        x,
+        y
+    };
+}
+
+/* MOBILE BUTTONS */
+
+document
+    .getElementById("up")
+    .addEventListener(
+        "pointerdown",
+        event => {
+            event.preventDefault();
+            setDirection(
+                0,
+                -1
+            );
+        }
+    );
+document
+    .getElementById("down")
+    .addEventListener(
+        "pointerdown",
+        event => {
+            event.preventDefault();
+            setDirection(
+                0,
+                1
+            );
+        }
+    );
+document
+    .getElementById("left")
+    .addEventListener(
+        "pointerdown",
+        event => {
+            event.preventDefault();
+            setDirection(
+                -1,
+                0
+            );
+        }
+    );
+document
+    .getElementById("right")
+    .addEventListener(
+        "pointerdown",
+        event => {
+            event.preventDefault();
+            setDirection(
+                1,
+                0
+            );
+        }
+    );
+
+/* INICIAR */
+
+function startGame() {
+    /*RESET*/
+    score = 0;
+    level = 1;
+    lives = 3;
+    powerTimer = 0;
+    invulnerabilityTimer = 1.5;
+    paused = false;
+    gameOver = false;
+
+    /*NOVO LABIRINTO*/
+    generateMaze();
+    createPellets();
+    createPlayer();
+    createGhosts();
+
+    /*AQUI OS FANTASMAS COMEÇAM*/
+    startGhostMovement();
+
+    /*JOGO*/
+    running = true;
+    startButton.classList.add("hidden");
+    pauseButton.textContent = "⏸";
+    messageElement.textContent = "🏃 Corra! Os caçadores estão em movimento.";
+    lastTime = performance.now();
+    updateHUD();
+    requestAnimationFrame(gameLoop);
+}
+
+/* GAME LOOP */
+
+function gameLoop(
+    timestamp
+) {
+    if (
+        !running
+    ) {
+        return;
+    }
+
+    /*PAUSA*/
+    if (
+        paused
+    ) {
+        draw();
+        requestAnimationFrame(gameLoop);
+        return;
+    }
+
+    /*DELTA TIME*/
+    const dt =
+        Math.min(
+            (
+                timestamp -
+                lastTime
+            ) /
+            1000,
+            .05
+        );
+    lastTime = timestamp;
+
+    /*INVULNERABILIDADE*/
+    if (
+        invulnerabilityTimer > 0
+    ) {
+        invulnerabilityTimer -= dt;
+        if (
+            invulnerabilityTimer < 0
+        ) {
+            invulnerabilityTimer = 0;
+        }
+    }
+
+    /*FRUTA*/
+    if (
+        powerTimer > 0
+    ) {
+        powerTimer -= dt;
+        if (
+            powerTimer <= 0
+        ) {
+            powerTimer = 0;
+            for (
+                const ghost
+                of ghosts
+            ) {
+                ghost.frightened = false;
+            }
+            messageElement.textContent = "🍒 O poder acabou!";
+        }
+    }
+
+    /*MOVIMENTO*/
+    updatePlayer(dt);
+    updateGhosts(dt);
+
+    /*COLISÕES*/
+    checkGhostCollisions();
+
+    /*DESENHO*/
+    draw();
+
+    /*PRÓXIMO FRAME*/
+    requestAnimationFrame(gameLoop);
+}
+
+/* DRAW */
+function draw() {
+    ctx.clearRect(0,0,canvas.width,canvas.height);
+    drawMaze();
+    drawPellets();
+    drawPlayer();
+    drawGhosts();
+
+    /*BARRA DA FRUTA*/
+    if (
+        powerTimer > 0
+    ) {
+        ctx.fillStyle = "#60a5fa";
+        ctx.fillRect(0,canvas.height - 4,canvas.width * (powerTimer / POWER_DURATION),4);
+    }
+
+    /*PAUSA*/
+    if (
+        paused
+    ) {
+        drawPauseScreen();
+    }
+}
+
+/* START BUTTON */
+startButton.addEventListener("click",startGame);
+
+/* ESTADO INICIAL */
+generateMaze();
+createPlayer();
+createPellets();
+createGhosts();
+updateHUD();
+draw();
+</script>
+</body>
+</html>
