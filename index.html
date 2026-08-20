@@ -1247,22 +1247,14 @@ function chooseGhostDirection(
 function updatePlayer(dt) {
     const centerCol =
         Math.round((player.x - TILE / 2) / TILE);
-
     const centerRow =
         Math.round((player.y - TILE / 2) / TILE);
-
-    const centerX =
-        centerCol * TILE + TILE / 2;
-
-    const centerY =
-        centerRow * TILE + TILE / 2;
-
+    const centerX = centerCol * TILE + TILE / 2;
+    const centerY = centerRow * TILE + TILE / 2;
     const distanceX = Math.abs(player.x - centerX);
     const distanceY = Math.abs(player.y - centerY);
-
     const turnTolerance = player.speed * dt + 1;
     const next = player.nextDirection;
-
     const isAligned =
         player.direction.x !== 0
             ? distanceY <= turnTolerance
@@ -1270,53 +1262,41 @@ function updatePlayer(dt) {
                 ? distanceX <= turnTolerance
                 : distanceX <= turnTolerance &&
                     distanceY <= turnTolerance;
-
     const targetRow = centerRow + next.y;
     const targetCol = centerCol + next.x;
-
     const canTurn =
         (next.x !== 0 || next.y !== 0) &&
         isAligned &&
         isOpenCell(targetRow, targetCol);
-
     if (canTurn) {
         if (next.x !== 0) {
             player.y = centerY;
         } else {
             player.x = centerX;
         }
-
         player.direction = {
             x: next.x,
             y: next.y
         };
     }
-
     const dx = player.direction.x * player.speed * dt;
     const dy = player.direction.y * player.speed * dt;
-
     if (canMove(player.x + dx, player.y, player.radius)) {
         player.x += dx;
     }
-
     if (canMove(player.x, player.y + dy, player.radius)) {
         player.y += dy;
     }
-
     player.row = Math.round(
         (player.y - TILE / 2) / TILE
     );
-
     player.col = Math.round(
         (player.x - TILE / 2) / TILE
     );
-
     collectPellets();
 }
 
-
 /* COLISÃO COM PAREDES */
-
 function canMove(
     x,
     y,
